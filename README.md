@@ -1,4 +1,4 @@
-# Medium Clone Backend
+# blog webiste  Backend
 
 A minimalist backend implementation of a Medium-like blogging platform using ASP.NET Core and SQLite.
 
