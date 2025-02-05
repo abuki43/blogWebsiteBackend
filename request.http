@@ -1,0 +1,107 @@
+@host = http://localhost:5289
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidGVzdHVzZXIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsImV4cCI6MTc0MTE1MjAxOCwiaXNzIjoibWVkaXVtQkUiLCJhdWQiOiJtZWRpdW1CRS1jbGllbnQifQ.UE5IUoR-vSkoG4gi_MFPBJpUFIXKOIUP7Z6IhXfKmI8
+
+### Authentication Endpoints ###
+
+### Register User
+POST {{host}}/api/users
+Content-Type: application/json
+
+{
+    "username": "testuser",
+    "email": "testuser@example.com",
+    "password": "SecurePassword123"
+}
+
+### Login User
+POST {{host}}/api/users/login
+Content-Type: application/json
+
+{
+
+    "email": "testuser@example.com",
+    "password": "SecurePassword123"
+}
+
+### Get Current User
+GET {{host}}/api/user
+Authorization: Bearer {{token}}
+
+### Update User
+PUT {{host}}/api/user
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+
+    "email": "updated@example.com",
+    "bio": "Updated bio",
+    "image": "https://example.com/image.jpg"
+}
+
+### Article Endpoints ###
+
+### Create Article
+POST {{host}}/api/articles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "article": {
+    "title": "Test Article",
+    "description": "Test Description",
+    "body": "Test Body",
+    "tagList": ["test", "api"]
+  }
+}
+
+### Get Articles (with pagination)
+GET {{host}}/api/articles?limit=10&offset=0
+
+### Get Articles by Tag
+GET {{host}}/api/articles?tag=test&limit=10&offset=0
+
+### Get Article by Slug
+GET {{host}}/api/articles/test-article-123
+
+### Get Tags
+GET {{host}}/api/tags
+
+### Profile Endpoints ###
+
+### Get Profile
+GET {{host}}/api/profiles/{username}
+
+### Follow User
+POST {{host}}/api/profiles/{username}/follow
+Authorization: Bearer {{token}}
+
+### Unfollow User
+DELETE {{host}}/api/profiles/{username}/follow
+Authorization: Bearer {{token}}
+
+### Get Following List
+GET {{host}}/api/profiles/{username}/following
+
+### Get Followers List
+GET {{host}}/api/profiles/{username}/followers
+
+### Comment Endpoints ###
+
+### Add Comment to Article
+POST {{host}}/api/articles/{slug}/comments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "comment": {
+    "body": "Test comment"
+  }
+}
+
+### Get Comments from Article
+GET {{host}}/api/articles/{slug}/comments
+
+### Delete Comment
+DELETE {{host}}/api/articles/{slug}/comments/{id}
+Authorization: Bearer {{token}}
