@@ -109,10 +109,15 @@ public static class ArticleEndpoints
         // Get all unique tags
         app.MapGet("/api/tags", async (MediumContext db) =>
         {
-            var tags = await db.Articles
-                .SelectMany(a => a.TagList)
-                .Distinct()
+            var articles = await db.Articles
+                .AsNoTracking()
+                .Select(a => a.TagList)
                 .ToListAsync();
+
+            var tags = articles
+                .SelectMany(tagList => tagList)
+                .Distinct()
+                .ToList();
 
             return Results.Ok(new { Tags = tags });
         });

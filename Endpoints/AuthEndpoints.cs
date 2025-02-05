@@ -108,7 +108,16 @@ public static class AuthEndpoints
 
             await db.SaveChangesAsync();
 
-            return Results.Ok(user);
+            UserResponseDTO updatedUser = new UserResponseDTO{
+                Email =  updateDto.Email,
+                Username = user.Username,
+                Bio = updateDto.Bio,
+                Image = updateDto.Image
+            };
+
+            return Results.Ok(
+                updatedUser
+            );
         }).RequireAuthorization();
     }
 

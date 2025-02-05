@@ -2,6 +2,9 @@ using mediumBE.Data;
 using mediumBE.DTOs;
 using mediumBE.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 
 namespace mediumBE.Endpoints;
 
@@ -12,9 +15,9 @@ public static class ProfileEndpoints
         // Get user profile
         app.MapGet("/api/profiles/{username}", async (MediumContext db, string username, HttpContext context) =>
         {
-            // TODO: Get actual user ID from auth
-            var currentUserId = 1;
-
+            // Get current user ID if authenticated (optional)
+            var currentUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
             var profile = await db.Users
                 .Include(u => u.Followers)
                 .FirstOrDefaultAsync(u => u.Username == username);
@@ -22,26 +25,33 @@ public static class ProfileEndpoints
             if (profile == null)
                 return Results.NotFound("Profile not found");
 
-            var isFollowing = profile.Followers?.Any(f => f.Id == currentUserId) ?? false;
+            // Check if following only if user is authenticated
+            bool isFollowing = false;
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
+                isFollowing = profile.Followers?
+                    .Any(f => f.Id == int.Parse(currentUserId)) ?? false;
+            }
 
-            return Results.Ok(new ProfileResponseDTO
+            return Results.Ok(new { Profile = new ProfileResponseDTO
             {
                 Username = profile.Username,
                 Bio = profile.Bio,
                 Image = profile.Image,
                 Following = isFollowing
-            });
+            }});
         });
 
         // Follow user
         app.MapPost("/api/profiles/{username}/follow", async (MediumContext db, string username, HttpContext context) =>
         {
-            // TODO: Get actual user ID from auth
-            var currentUserId = 1;
+            var currentUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentUserId))
+                return Results.Unauthorized();
 
             var currentUser = await db.Users
                 .Include(u => u.Following)
-                .FirstOrDefaultAsync(u => u.Id == currentUserId);
+                .FirstOrDefaultAsync(u => u.Id == int.Parse(currentUserId));
 
             var userToFollow = await db.Users
                 .FirstOrDefaultAsync(u => u.Username == username);
@@ -58,24 +68,25 @@ public static class ProfileEndpoints
                 await db.SaveChangesAsync();
             }
 
-            return Results.Ok(new ProfileResponseDTO
+            return Results.Ok(new { Profile = new ProfileResponseDTO
             {
                 Username = userToFollow.Username,
                 Bio = userToFollow.Bio,
                 Image = userToFollow.Image,
                 Following = true
-            });
+            }});
         }).RequireAuthorization();
 
         // Unfollow user
         app.MapDelete("/api/profiles/{username}/follow", async (MediumContext db, string username, HttpContext context) =>
         {
-            // TODO: Get actual user ID from auth
-            var currentUserId = 1;
+            var currentUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentUserId))
+                return Results.Unauthorized();
 
             var currentUser = await db.Users
                 .Include(u => u.Following)
-                .FirstOrDefaultAsync(u => u.Id == currentUserId);
+                .FirstOrDefaultAsync(u => u.Id == int.Parse(currentUserId));
 
             var userToUnfollow = await db.Users
                 .FirstOrDefaultAsync(u => u.Username == username);
@@ -93,18 +104,20 @@ public static class ProfileEndpoints
                 }
             }
 
-            return Results.Ok(new ProfileResponseDTO
+            return Results.Ok(new { Profile = new ProfileResponseDTO
             {
                 Username = userToUnfollow.Username,
                 Bio = userToUnfollow.Bio,
                 Image = userToUnfollow.Image,
                 Following = false
-            });
+            }});
         }).RequireAuthorization();
 
         // Get following list
-        app.MapGet("/api/profiles/{username}/following", async (MediumContext db, string username) =>
+        app.MapGet("/api/profiles/{username}/following", async (MediumContext db, string username, HttpContext context) =>
         {
+            var currentUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var user = await db.Users
                 .Include(u => u.Following)
                 .FirstOrDefaultAsync(u => u.Username == username);
@@ -118,16 +131,20 @@ public static class ProfileEndpoints
                     Username = f.Username,
                     Bio = f.Bio,
                     Image = f.Image,
-                    Following = true
+                    Following = !string.IsNullOrEmpty(currentUserId) && 
+                               f.Followers != null && 
+                               f.Followers.Any(follower => follower.Id == int.Parse(currentUserId))
                 })
                 .ToList() ?? new List<ProfileResponseDTO>();
 
-            return Results.Ok(following);
+            return Results.Ok(new { Profiles = following });
         });
 
         // Get followers list
-        app.MapGet("/api/profiles/{username}/followers", async (MediumContext db, string username) =>
+        app.MapGet("/api/profiles/{username}/followers", async (MediumContext db, string username, HttpContext context) =>
         {
+            var currentUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var user = await db.Users
                 .Include(u => u.Followers)
                 .FirstOrDefaultAsync(u => u.Username == username);
@@ -141,11 +158,13 @@ public static class ProfileEndpoints
                     Username = f.Username,
                     Bio = f.Bio,
                     Image = f.Image,
-                    Following = false // You might want to check if the current user follows each follower
+                    Following = !string.IsNullOrEmpty(currentUserId) && 
+                               f.Followers != null && 
+                               f.Followers.Any(follower => follower.Id == int.Parse(currentUserId))
                 })
                 .ToList() ?? new List<ProfileResponseDTO>();
 
-            return Results.Ok(followers);
+            return Results.Ok(new { Profiles = followers });
         });
     }
 } 

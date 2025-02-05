@@ -2,6 +2,9 @@ using mediumBE.Data;
 using mediumBE.DTOs;
 using mediumBE.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace mediumBE.Endpoints;
 
@@ -12,8 +15,9 @@ public static class CommentEndpoints
         // Add comment to an article
         app.MapPost("/api/articles/{slug}/comments", async (MediumContext db, string slug, CreateCommentDTO commentDTO, HttpContext context) =>
         {
-            // TODO: Get actual user ID from auth
-            var userId = 1;
+            var currentUserId = context.User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(currentUserId))
+                return Results.Unauthorized();
 
             var article = await db.Articles
                 .FirstOrDefaultAsync(a => a.Slug == slug);
@@ -25,7 +29,7 @@ public static class CommentEndpoints
             {
                 Body = commentDTO.Body,
                 ArticleId = article.Id,
-                AuthorId = userId,
+                AuthorId = int.Parse(currentUserId),
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -38,7 +42,7 @@ public static class CommentEndpoints
                 .Include(c => c.Author)
                 .FirstAsync(c => c.Id == comment.Id);
 
-            return Results.Ok(new CommentResponseDTO
+            return Results.Ok(new { Comment = new CommentResponseDTO
             {
                 Id = comment.Id,
                 Body = comment.Body,
@@ -50,7 +54,7 @@ public static class CommentEndpoints
                     Bio = commentWithAuthor.Author.Bio,
                     Image = commentWithAuthor.Author.Image
                 }
-            });
+            }});
         }).RequireAuthorization();
 
         // Get comments for an article

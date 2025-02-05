@@ -1,6 +1,7 @@
 @host = http://localhost:5289
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidGVzdHVzZXIiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9lbWFpbGFkZHJlc3MiOiJ0ZXN0dXNlckBleGFtcGxlLmNvbSIsImV4cCI6MTc0MTE1MjAxOCwiaXNzIjoibWVkaXVtQkUiLCJhdWQiOiJtZWRpdW1CRS1jbGllbnQifQ.UE5IUoR-vSkoG4gi_MFPBJpUFIXKOIUP7Z6IhXfKmI8
-
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoidGVzdHVzZXIxIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoidGVzdHVzZXIxQGV4YW1wbGUuY29tIiwiZXhwIjoxNzQxMzY4MzU2LCJpc3MiOiJtZWRpdW1CRSIsImF1ZCI6Im1lZGl1bUJFLWNsaWVudCJ9.ZWym4xYyhfJ2vp4YG1Hh9dLQ4p-9ICrxcNEmFDwwTQA
+@username = testuser
+@slug = test-article-3-638743754078108524
 ### Authentication Endpoints ###
 
 ### Register User
@@ -8,8 +9,8 @@ POST {{host}}/api/users
 Content-Type: application/json
 
 {
-    "username": "testuser",
-    "email": "testuser@example.com",
+    "username": "testuser1",
+    "email": "testuser1@example.com",
     "password": "SecurePassword123"
 }
 
@@ -19,7 +20,7 @@ Content-Type: application/json
 
 {
 
-    "email": "testuser@example.com",
+    "email": "testuser1@example.com",
     "password": "SecurePassword123"
 }
 
@@ -35,7 +36,7 @@ Content-Type: application/json
 {
 
     "email": "updated@example.com",
-    "bio": "Updated bio",
+    "bio": "Updated bio 2",
     "image": "https://example.com/image.jpg"
 }
 
@@ -47,12 +48,10 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "article": {
-    "title": "Test Article",
-    "description": "Test Description",
+    "title": "Test Article 3",
+    "description": "Test Description 3",
     "body": "Test Body",
-    "tagList": ["test", "api"]
-  }
+    "tagList": ["test", "unit test"]
 }
 
 ### Get Articles (with pagination)
@@ -64,43 +63,42 @@ GET {{host}}/api/articles?tag=test&limit=10&offset=0
 ### Get Article by Slug
 GET {{host}}/api/articles/test-article-123
 
+
 ### Get Tags
 GET {{host}}/api/tags
 
 ### Profile Endpoints ###
 
 ### Get Profile
-GET {{host}}/api/profiles/{username}
+GET {{host}}/api/profiles/{{username}}
 
 ### Follow User
-POST {{host}}/api/profiles/{username}/follow
+POST {{host}}/api/profiles/{{username}}/follow
 Authorization: Bearer {{token}}
 
 ### Unfollow User
-DELETE {{host}}/api/profiles/{username}/follow
+DELETE {{host}}/api/profiles/{{username}}/follow
 Authorization: Bearer {{token}}
 
 ### Get Following List
-GET {{host}}/api/profiles/{username}/following
+GET {{host}}/api/profiles/{{username}}/following
 
 ### Get Followers List
-GET {{host}}/api/profiles/{username}/followers
+GET {{host}}/api/profiles/{{username}}/followers
 
 ### Comment Endpoints ###
 
 ### Add Comment to Article
-POST {{host}}/api/articles/{slug}/comments
+POST {{host}}/api/articles/{{slug}}/comments
 Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
-  "comment": {
     "body": "Test comment"
-  }
 }
 
 ### Get Comments from Article
-GET {{host}}/api/articles/{slug}/comments
+GET {{host}}/api/articles/{{slug}}/comments
 
 ### Delete Comment
 DELETE {{host}}/api/articles/{slug}/comments/{id}

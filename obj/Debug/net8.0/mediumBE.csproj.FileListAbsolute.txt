@@ -160,3 +160,4 @@ C:\Users\Abuki\Documents\Learn\Asp.net\mediumBE\obj\Debug\net8.0\refint\mediumBE
 C:\Users\Abuki\Documents\Learn\Asp.net\mediumBE\obj\Debug\net8.0\mediumBE.pdb
 C:\Users\Abuki\Documents\Learn\Asp.net\mediumBE\obj\Debug\net8.0\mediumBE.genruntimeconfig.cache
 C:\Users\Abuki\Documents\Learn\Asp.net\mediumBE\obj\Debug\net8.0\ref\mediumBE.dll
+C:\Users\Abuki\Documents\Learn\Asp.net\mediumBE\obj\Debug\net8.0\mediumBE.sourcelink.json

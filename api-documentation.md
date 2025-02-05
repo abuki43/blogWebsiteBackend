@@ -1,29 +1,34 @@
 # Medium Clone API Documentation
 
+## Authentication
+
+All protected endpoints require a JWT token in the Authorization header:
+```
+Authorization: Bearer <token>
+```
+
 ## Authentication Endpoints
 
 ### Register User
 - **POST** `/api/users`
-- **Body**: 
+- **Body**:
 ```json
 {
-  "user": {
     "username": "string",
     "email": "string",
     "password": "string"
-  }
 }
 ```
 - **Response**: 
 ```json
 {
-  "user": {
-    "email": "string",
-    "token": "string",
-    "username": "string",
-    "bio": "string",
-    "image": "string"
-  }
+    "user": {
+        "email": "string",
+        "token": "string",
+        "username": "string",
+        "bio": "string",
+        "image": "string"
+    }
 }
 ```
 
@@ -32,119 +37,99 @@
 - **Body**:
 ```json
 {
-  "user": {
     "email": "string",
     "password": "string"
-  }
 }
 ```
-- **Response**: Same as register response
+- **Response**: Same as Register
 
 ### Get Current User
 - **GET** `/api/user`
 - **Auth Required**: Yes
-- **Headers**: `Authorization: Bearer {token}`
-- **Response**: Same as register response
+- **Response**:
+```json
+{
+    "user": {
+        "email": "string",
+        "token": "string",
+        "username": "string",
+        "bio": "string",
+        "image": "string"
+    }
+}
+```
 
 ### Update User
 - **PUT** `/api/user`
 - **Auth Required**: Yes
-- **Headers**: `Authorization: Bearer {token}`
 - **Body**:
 ```json
 {
-  "user": {
     "email": "string",
-    "username": "string",
-    "password": "string",
     "bio": "string",
     "image": "string"
-  }
 }
 ```
-- **Response**: Updated user object
 
 ## Article Endpoints
 
 ### Create Article
 - **POST** `/api/articles`
 - **Auth Required**: Yes
-- **Headers**: `Authorization: Bearer {token}`
 - **Body**:
 ```json
 {
-  "article": {
     "title": "string",
     "description": "string",
     "body": "string",
     "tagList": ["string"]
-  }
 }
 ```
+
+### Get Articles
+- **GET** `/api/articles`
+- **Query Parameters**:
+  - `limit`: Number of articles (default: 20)
+  - `offset`: Offset/skip number (default: 0)
+  - `tag`: Filter by tag
 - **Response**:
 ```json
 {
-  "article": {
-    "slug": "string",
-    "title": "string",
-    "description": "string",
-    "body": "string",
-    "tagList": ["string"],
-    "createdAt": "datetime",
-    "updatedAt": "datetime",
-    "favorited": false,
-    "favoritesCount": 0,
-    "author": {
-      "username": "string",
-      "bio": "string",
-      "image": "string",
-      "following": false
-    }
-  }
+    "articles": [
+        {
+            "slug": "string",
+            "title": "string",
+            "description": "string",
+            "body": "string",
+            "tagList": ["string"],
+            "createdAt": "datetime",
+            "updatedAt": "datetime",
+            "favorited": boolean,
+            "favoritesCount": number,
+            "author": {
+                "username": "string",
+                "bio": "string",
+                "image": "string",
+                "following": boolean
+            }
+        }
+    ],
+    "articlesCount": number
 }
 ```
 
-## Comment Endpoints
+### Get Article by Slug
+- **GET** `/api/articles/{slug}`
+- **Response**: Single article object
 
-### Add Comment
-- **POST** `/api/articles/{slug}/comments`
-- **Auth Required**: Yes
-- **Headers**: `Authorization: Bearer {token}`
-- **Body**:
-```json
-{
-  "comment": {
-    "body": "string"
-  }
-}
-```
+### Get Tags
+- **GET** `/api/tags`
 - **Response**:
 ```json
 {
-  "comment": {
-    "id": 1,
-    "body": "string",
-    "createdAt": "datetime",
-    "updatedAt": "datetime",
-    "author": {
-      "username": "string",
-      "bio": "string",
-      "image": "string",
-      "following": false
-    }
-  }
+    "tags": ["string"]
 }
 ```
-
-### Get Comments
-- **GET** `/api/articles/{slug}/comments`
-- **Response**: Array of comment objects
-
-### Delete Comment
-- **DELETE** `/api/articles/{slug}/comments/{id}`
-- **Auth Required**: Yes
-- **Headers**: `Authorization: Bearer {token}`
-- **Response**: 200 OK
 
 ## Profile Endpoints
 
@@ -153,68 +138,72 @@
 - **Response**:
 ```json
 {
-  "profile": {
-    "username": "string",
-    "bio": "string",
-    "image": "string",
-    "following": false
-  }
+    "profile": {
+        "username": "string",
+        "bio": "string",
+        "image": "string",
+        "following": boolean
+    }
 }
 ```
 
 ### Follow User
 - **POST** `/api/profiles/{username}/follow`
 - **Auth Required**: Yes
-- **Headers**: `Authorization: Bearer {token}`
 - **Response**: Profile object
 
 ### Unfollow User
 - **DELETE** `/api/profiles/{username}/follow`
 - **Auth Required**: Yes
-- **Headers**: `Authorization: Bearer {token}`
 - **Response**: Profile object
 
 ### Get Following List
 - **GET** `/api/profiles/{username}/following`
-- **Response**: Array of profile objects
+- **Response**: Array of profiles
 
 ### Get Followers List
 - **GET** `/api/profiles/{username}/followers`
-- **Response**: Array of profile objects
+- **Response**: Array of profiles
 
-## Error Handling
+## Comment Endpoints
 
-### Error Response Format
+### Add Comment
+- **POST** `/api/articles/{slug}/comments`
+- **Auth Required**: Yes
+- **Body**:
 ```json
 {
-  "errors": {
-    "body": [
-      "error message"
-    ]
-  }
+    "body": "string"
+}
+```
+- **Response**:
+```json
+{
+    "comment": {
+        "id": number,
+        "body": "string",
+        "createdAt": "datetime",
+        "updatedAt": "datetime",
+        "author": {
+            "username": "string",
+            "bio": "string",
+            "image": "string"
+        }
+    }
 }
 ```
 
-Common HTTP Status Codes:
+### Get Comments
+- **GET** `/api/articles/{slug}/comments`
+- **Response**: Array of comments
+
+### Delete Comment
+- **DELETE** `/api/articles/{slug}/comments/{id}`
+- **Auth Required**: Yes
+
+## Common HTTP Status Codes
 - 200: Success
 - 401: Unauthorized
 - 403: Forbidden
 - 404: Not Found
 - 422: Validation Error
-
-## Pagination
-
-Available for article and comment listings:
-- `limit`: Number of items to return (default: 20)
-- `offset`: Number of items to skip (default: 0)
-
-Example: `/api/articles?limit=20&offset=0`
-
-## Authentication
-
-All protected endpoints require a JWT token in the Authorization header:
-```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
-
-The token is obtained after login/registration and expires after 30 days.
